@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CourseCourseIndexRouteImport } from './routes/course.$course.index'
 import { Route as CourseCourseSemesterRouteImport } from './routes/course.$course.$semester'
+import { Route as CourseCourseSemesterIndexRouteImport } from './routes/course.$course.$semester.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,44 +35,57 @@ const CourseCourseSemesterRoute = CourseCourseSemesterRouteImport.update({
   path: '/course/$course/$semester',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CourseCourseSemesterIndexRoute =
+  CourseCourseSemesterIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => CourseCourseSemesterRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
-  '/course/$course/$semester': typeof CourseCourseSemesterRoute
+  '/course/$course/$semester': typeof CourseCourseSemesterRouteWithChildren
   '/course/$course/': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
-  '/course/$course/$semester': typeof CourseCourseSemesterRoute
   '/course/$course': typeof CourseCourseIndexRoute
+  '/course/$course/$semester': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
-  '/course/$course/$semester': typeof CourseCourseSemesterRoute
+  '/course/$course/$semester': typeof CourseCourseSemesterRouteWithChildren
   '/course/$course/': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/bookmarks' | '/course/$course/$semester' | '/course/$course/'
+    | '/'
+    | '/bookmarks'
+    | '/course/$course/$semester'
+    | '/course/$course/'
+    | '/course/$course/$semester/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bookmarks' | '/course/$course/$semester' | '/course/$course'
+  to: '/' | '/bookmarks' | '/course/$course' | '/course/$course/$semester'
   id:
     | '__root__'
     | '/'
     | '/bookmarks'
     | '/course/$course/$semester'
     | '/course/$course/'
+    | '/course/$course/$semester/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookmarksRoute: typeof BookmarksRoute
-  CourseCourseSemesterRoute: typeof CourseCourseSemesterRoute
+  CourseCourseSemesterRoute: typeof CourseCourseSemesterRouteWithChildren
   CourseCourseIndexRoute: typeof CourseCourseIndexRoute
 }
 
@@ -105,25 +119,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CourseCourseSemesterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/course/$course/$semester/': {
+      id: '/course/$course/$semester/'
+      path: '/'
+      fullPath: '/course/$course/$semester/'
+      preLoaderRoute: typeof CourseCourseSemesterIndexRouteImport
+      parentRoute: typeof CourseCourseSemesterRoute
+    }
   }
 }
+
+interface CourseCourseSemesterRouteChildren {
+  CourseCourseSemesterIndexRoute: typeof CourseCourseSemesterIndexRoute
+}
+
+const CourseCourseSemesterRouteChildren: CourseCourseSemesterRouteChildren = {
+  CourseCourseSemesterIndexRoute: CourseCourseSemesterIndexRoute,
+}
+
+const CourseCourseSemesterRouteWithChildren =
+  CourseCourseSemesterRoute._addFileChildren(CourseCourseSemesterRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookmarksRoute: BookmarksRoute,
-  CourseCourseSemesterRoute: CourseCourseSemesterRoute,
+  CourseCourseSemesterRoute: CourseCourseSemesterRouteWithChildren,
   CourseCourseIndexRoute: CourseCourseIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
