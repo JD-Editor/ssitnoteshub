@@ -1,9 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { NotFoundScreen } from "@/components/NotFoundScreen";
 import { getCourse } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
+
 
 export const Route = createFileRoute("/course/$course/")({
   head: ({ params }) => {
@@ -19,19 +21,20 @@ export const Route = createFileRoute("/course/$course/")({
       ],
     };
   },
-  beforeLoad: ({ params }) => {
-    if (!getCourse(params.course)) throw notFound();
-  },
   component: CoursePage,
 });
 
 function CoursePage() {
   const { course: courseParam } = Route.useParams();
-  const course = getCourse(courseParam)!;
+  const course = getCourse(courseParam);
   const { data: docs = [] } = useQuery({
-    queryKey: ["documents", course.id],
-    queryFn: () => fetchDocuments({ course: course.id }),
+    queryKey: ["documents", course?.id],
+    queryFn: () => fetchDocuments({ course: course!.id }),
+    enabled: !!course,
   });
+
+  if (!course) return <NotFoundScreen message="That course isn't available." />;
+
 
   return (
     <div className="min-h-screen bg-background">

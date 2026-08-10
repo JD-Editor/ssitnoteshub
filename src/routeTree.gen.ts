@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CourseCourseIndexRouteImport } from './routes/course.$course.index'
-import { Route as CourseCourseSemesterRouteImport } from './routes/course.$course.$semester'
+import { Route as CourseCourseSemesterIndexRouteImport } from './routes/course.$course.$semester.index'
+import { Route as CourseCourseSemesterSubjectRouteImport } from './routes/course.$course.$semester.$subject'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -29,50 +36,78 @@ const CourseCourseIndexRoute = CourseCourseIndexRouteImport.update({
   path: '/course/$course/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CourseCourseSemesterRoute = CourseCourseSemesterRouteImport.update({
-  id: '/course/$course/$semester',
-  path: '/course/$course/$semester',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const CourseCourseSemesterIndexRoute =
+  CourseCourseSemesterIndexRouteImport.update({
+    id: '/course/$course/$semester/',
+    path: '/course/$course/$semester/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CourseCourseSemesterSubjectRoute =
+  CourseCourseSemesterSubjectRouteImport.update({
+    id: '/course/$course/$semester/$subject',
+    path: '/course/$course/$semester/$subject',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/bookmarks': typeof BookmarksRoute
-  '/course/$course/$semester': typeof CourseCourseSemesterRoute
   '/course/$course/': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
+  '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/bookmarks': typeof BookmarksRoute
-  '/course/$course/$semester': typeof CourseCourseSemesterRoute
   '/course/$course': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
+  '/course/$course/$semester': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/bookmarks': typeof BookmarksRoute
-  '/course/$course/$semester': typeof CourseCourseSemesterRoute
   '/course/$course/': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
+  '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/bookmarks' | '/course/$course/$semester' | '/course/$course/'
+    | '/'
+    | '/admin'
+    | '/bookmarks'
+    | '/course/$course/'
+    | '/course/$course/$semester/$subject'
+    | '/course/$course/$semester/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bookmarks' | '/course/$course/$semester' | '/course/$course'
+  to:
+    | '/'
+    | '/admin'
+    | '/bookmarks'
+    | '/course/$course'
+    | '/course/$course/$semester/$subject'
+    | '/course/$course/$semester'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/bookmarks'
-    | '/course/$course/$semester'
     | '/course/$course/'
+    | '/course/$course/$semester/$subject'
+    | '/course/$course/$semester/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   BookmarksRoute: typeof BookmarksRoute
-  CourseCourseSemesterRoute: typeof CourseCourseSemesterRoute
   CourseCourseIndexRoute: typeof CourseCourseIndexRoute
+  CourseCourseSemesterSubjectRoute: typeof CourseCourseSemesterSubjectRoute
+  CourseCourseSemesterIndexRoute: typeof CourseCourseSemesterIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +117,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -98,11 +140,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CourseCourseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/course/$course/$semester': {
-      id: '/course/$course/$semester'
+    '/course/$course/$semester/': {
+      id: '/course/$course/$semester/'
       path: '/course/$course/$semester'
-      fullPath: '/course/$course/$semester'
-      preLoaderRoute: typeof CourseCourseSemesterRouteImport
+      fullPath: '/course/$course/$semester/'
+      preLoaderRoute: typeof CourseCourseSemesterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/course/$course/$semester/$subject': {
+      id: '/course/$course/$semester/$subject'
+      path: '/course/$course/$semester/$subject'
+      fullPath: '/course/$course/$semester/$subject'
+      preLoaderRoute: typeof CourseCourseSemesterSubjectRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -110,20 +159,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   BookmarksRoute: BookmarksRoute,
-  CourseCourseSemesterRoute: CourseCourseSemesterRoute,
   CourseCourseIndexRoute: CourseCourseIndexRoute,
+  CourseCourseSemesterSubjectRoute: CourseCourseSemesterSubjectRoute,
+  CourseCourseSemesterIndexRoute: CourseCourseSemesterIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
