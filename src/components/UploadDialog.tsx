@@ -40,11 +40,18 @@ export function UploadDialog({
   };
 
   const submit = async () => {
-    if (!file) return toast.error("Choose a PDF file first.");
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      return toast.error("Only PDF files are allowed.");
+    if (!file) {
+      toast.error("Choose a PDF file first.");
+      return;
     }
-    if (!subject.trim()) return toast.error("Enter the subject name.");
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      toast.error("Only PDF files are allowed.");
+      return;
+    }
+    if (!subject.trim()) {
+      toast.error("Enter the subject name.");
+      return;
+    }
     setBusy(true);
     try {
       await uploadDocument({ file, course, semester, subject, category, title });
