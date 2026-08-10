@@ -14,6 +14,7 @@ import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CourseCourseIndexRouteImport } from './routes/course.$course.index'
 import { Route as CourseCourseSemesterRouteImport } from './routes/course.$course.$semester'
 import { Route as CourseCourseSemesterIndexRouteImport } from './routes/course.$course.$semester.index'
+import { Route as CourseCourseSemesterSubjectRouteImport } from './routes/course.$course.$semester.$subject'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,18 +42,26 @@ const CourseCourseSemesterIndexRoute =
     path: '/',
     getParentRoute: () => CourseCourseSemesterRoute,
   } as any)
+const CourseCourseSemesterSubjectRoute =
+  CourseCourseSemesterSubjectRouteImport.update({
+    id: '/$subject',
+    path: '/$subject',
+    getParentRoute: () => CourseCourseSemesterRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
   '/course/$course/$semester': typeof CourseCourseSemesterRouteWithChildren
   '/course/$course/': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
   '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
   '/course/$course': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
   '/course/$course/$semester': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRoutesById {
@@ -61,6 +70,7 @@ export interface FileRoutesById {
   '/bookmarks': typeof BookmarksRoute
   '/course/$course/$semester': typeof CourseCourseSemesterRouteWithChildren
   '/course/$course/': typeof CourseCourseIndexRoute
+  '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
   '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
 }
 export interface FileRouteTypes {
@@ -70,15 +80,22 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/course/$course/$semester'
     | '/course/$course/'
+    | '/course/$course/$semester/$subject'
     | '/course/$course/$semester/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bookmarks' | '/course/$course' | '/course/$course/$semester'
+  to:
+    | '/'
+    | '/bookmarks'
+    | '/course/$course'
+    | '/course/$course/$semester/$subject'
+    | '/course/$course/$semester'
   id:
     | '__root__'
     | '/'
     | '/bookmarks'
     | '/course/$course/$semester'
     | '/course/$course/'
+    | '/course/$course/$semester/$subject'
     | '/course/$course/$semester/'
   fileRoutesById: FileRoutesById
 }
@@ -126,14 +143,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CourseCourseSemesterIndexRouteImport
       parentRoute: typeof CourseCourseSemesterRoute
     }
+    '/course/$course/$semester/$subject': {
+      id: '/course/$course/$semester/$subject'
+      path: '/$subject'
+      fullPath: '/course/$course/$semester/$subject'
+      preLoaderRoute: typeof CourseCourseSemesterSubjectRouteImport
+      parentRoute: typeof CourseCourseSemesterRoute
+    }
   }
 }
 
 interface CourseCourseSemesterRouteChildren {
+  CourseCourseSemesterSubjectRoute: typeof CourseCourseSemesterSubjectRoute
   CourseCourseSemesterIndexRoute: typeof CourseCourseSemesterIndexRoute
 }
 
 const CourseCourseSemesterRouteChildren: CourseCourseSemesterRouteChildren = {
+  CourseCourseSemesterSubjectRoute: CourseCourseSemesterSubjectRoute,
   CourseCourseSemesterIndexRoute: CourseCourseSemesterIndexRoute,
 }
 
