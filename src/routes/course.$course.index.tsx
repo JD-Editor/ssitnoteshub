@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { getCourse } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
 
-export const Route = createFileRoute("/course/$course")({
+export const Route = createFileRoute("/course/$course/")({
   head: ({ params }) => {
     const c = getCourse(params.course);
     const title = `${c?.name ?? params.course} Semesters | SSIT Study Hub`;
