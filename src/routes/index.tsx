@@ -7,44 +7,96 @@ import { DocumentCard } from "@/components/DocumentCard";
 import { Input } from "@/components/ui/input";
 import { COURSES } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
+import { getSections, getSubjects } from "@/lib/syllabus";
 import { useBookmarks } from "@/lib/bookmarks";
 import hero from "@/assets/hero-image.asset.json";
-import logo from "@/assets/ssit_logo.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SSIT Study Hub | Notes, PYQs & Practicals" },
+      { title: "SSIT Study Hub | Textbook PDFs, PYQs & Practicals" },
       {
         name: "description",
         content:
-          "Free notes, previous year papers and practicals for BCA, MCA and IT students of Shree Swaminarayan Institute of Technology, Gandhinagar.",
+          "Free textbook PDFs, previous year question papers and practicals for BCA, MCA and IT students of Shree Swaminarayan Institute of Technology, Gandhinagar.",
       },
-      { property: "og:title", content: "SSIT Study Hub | Notes, PYQs & Practicals" },
+      { property: "og:title", content: "SSIT Study Hub | Textbook PDFs, PYQs & Practicals" },
       {
         property: "og:description",
-        content: "Browse, upload and download semester-wise study material for BCA, MCA and IT.",
+        content: "Browse and download semester-wise study material for BCA, MCA and IT.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
 });
 
+type SyllabusHit = {
+  course: string;
+  semester: number;
+  subjectId: string;
+  subjectName: string;
+  detail: string;
+};
+
+function buildSyllabusIndex(): SyllabusHit[] {
+  const hits: SyllabusHit[] = [];
+  for (const course of COURSES) {
+    for (let sem = 1; sem <= course.semesters; sem++) {
+      for (const subject of getSubjects(course.id, sem)) {
+        hits.push({
+          course: course.id,
+          semester: sem,
+          subjectId: subject.id,
+          subjectName: subject.name,
+          detail: `Semester ${sem} subject`,
+        });
+        for (const section of getSections(subject)) {
+          hits.push({
+            course: course.id,
+            semester: sem,
+            subjectId: subject.id,
+            subjectName: subject.name,
+            detail: section.label,
+          });
+        }
+      }
+    }
+  }
+  return hits;
+}
+
+const SYLLABUS_INDEX = buildSyllabusIndex();
+
 function Home() {
   const [search, setSearch] = useState("");
-  const { data: docs = [] } = useQuery({ queryKey: ["documents"], queryFn: () => fetchDocuments() });
+  const { data: docs = [], isLoading } = useQuery({
+    queryKey: ["documents"],
+    queryFn: () => fetchDocuments(),
+  });
   const { isBookmarked, toggle } = useBookmarks();
 
+  const query = search.trim().toLowerCase();
+
   const results = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return [];
+    if (!query) return [];
     return docs.filter((d) =>
       [d.title, d.subject, d.course, d.category, `semester ${d.semester}`]
         .join(" ")
         .toLowerCase()
-        .includes(q),
+        .includes(query),
     );
-  }, [docs, search]);
+  }, [docs, query]);
+
+  const syllabusResults = useMemo(() => {
+    if (!query) return [];
+    return SYLLABUS_INDEX.filter((h) =>
+      `${h.course} semester ${h.semester} ${h.subjectName} ${h.detail}`
+        .toLowerCase()
+        .includes(query),
+    ).slice(0, 12);
+  }, [query]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,74 +110,109 @@ function Home() {
         />
         <div className="hero-overlay absolute inset-0" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <div className="flex flex-col items-start gap-6">
-            <img
-              src={logo.url}
-              alt="SSIT logo"
-              className="h-20 w-20 rounded-full bg-background/90 p-1 sm:h-24 sm:w-24"
-            />
-            <div className="max-w-2xl">
-              <h1 className="text-3xl font-black leading-tight text-primary-foreground sm:text-5xl">
+          <div className="flex max-w-2xl flex-col items-start gap-6">
+            <span className="chip-hero">Shree Swaminarayan Institute of Technology</span>
+            <div>
+              <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-primary-foreground drop-shadow-sm sm:text-6xl">
                 Welcome to SSIT Study Hub
               </h1>
-              <p className="mt-3 text-sm text-primary-foreground/85 sm:text-base">
+              <p className="mt-4 max-w-xl text-sm leading-relaxed text-primary-foreground/90 sm:text-lg">
                 Everything you need in one place — semester-wise notes, previous year question
                 papers and practicals for BCA, MCA and IT.
               </p>
             </div>
             <div className="relative w-full max-w-xl">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search notes, PYQs, practicals or subjects…"
-                className="h-12 rounded-full border-0 bg-card pl-10 text-base"
+                placeholder="Search semester, subject, unit or PYQs…"
+                className="h-13 rounded-full border-0 bg-card pl-11 text-base shadow-lg"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-4 py-10">
-        {search.trim() ? (
-          <section>
-            <h2 className="text-xl font-bold text-foreground">
-              {results.length} result{results.length === 1 ? "" : "s"} for “{search}”
-            </h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {results.map((doc) => (
-                <DocumentCard
-                  key={doc.id}
-                  doc={doc}
-                  bookmarked={isBookmarked(doc.id)}
-                  onToggleBookmark={toggle}
-                />
-              ))}
-            </div>
-            {results.length === 0 && (
-              <p className="mt-4 text-sm text-muted-foreground">
-                Nothing matched your search yet.
-              </p>
+      <main className="mx-auto max-w-6xl px-4 py-12">
+        {query ? (
+          <section className="space-y-8">
+            {syllabusResults.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-foreground">Subjects & units</h2>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {syllabusResults.map((hit, i) => (
+                    <Link
+                      key={`${hit.course}-${hit.semester}-${hit.subjectId}-${i}`}
+                      to="/course/$course/$semester/$subject"
+                      params={{
+                        course: hit.course,
+                        semester: String(hit.semester),
+                        subject: hit.subjectId,
+                      }}
+                      className="glass-card rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+                    >
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {hit.subjectName}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {hit.course} · Sem {hit.semester} · {hit.detail}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
+
+            <div>
+              <h2 className="text-xl font-bold text-foreground">
+                {results.length} PDF{results.length === 1 ? "" : "s"} for “{search}”
+              </h2>
+              {isLoading ? (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-32 animate-pulse rounded-2xl bg-muted" />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {results.map((doc) => (
+                    <DocumentCard
+                      key={doc.id}
+                      doc={doc}
+                      bookmarked={isBookmarked(doc.id)}
+                      onToggleBookmark={toggle}
+                    />
+                  ))}
+                </div>
+              )}
+              {!isLoading && results.length === 0 && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No uploaded PDF matched your search yet.
+                </p>
+              )}
+            </div>
           </section>
         ) : (
           <section>
-            <h2 className="text-xl font-bold text-foreground">Courses</h2>
+            <h2 className="text-2xl font-black tracking-tight text-foreground">Courses</h2>
             <p className="text-sm text-muted-foreground">Pick your course to browse semesters.</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {COURSES.map((course) => (
                 <Link
                   key={course.id}
                   to="/course/$course"
                   params={{ course: course.id }}
-                  className="card-soft group rounded-2xl border border-border bg-card p-6 transition-transform hover:-translate-y-1"
+                  className="glass-card group rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary text-primary-foreground">
-                    <GraduationCap className="h-5 w-5" />
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground transition-transform duration-300 group-hover:scale-105">
+                    <GraduationCap className="h-6 w-6" />
                   </span>
-                  <h3 className="mt-4 text-2xl font-black text-foreground">{course.name}</h3>
+                  <h3 className="mt-5 text-2xl font-black tracking-tight text-foreground">
+                    {course.name}
+                  </h3>
                   <p className="text-sm text-muted-foreground">{course.full}</p>
-                  <p className="mt-3 text-xs font-medium text-primary">
+                  <p className="mt-4 text-xs font-semibold text-primary">
                     {course.semesters} semesters ·{" "}
                     {docs.filter((d) => d.course === course.id).length} files
                   </p>
