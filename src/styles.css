@@ -149,3 +149,11 @@
     color: var(--color-foreground);
   }
 }
+
+@utility hero-overlay {
+  background-image: var(--hero-overlay);
+}
+
+@utility card-soft {
+  box-shadow: var(--shadow-soft);
+}
