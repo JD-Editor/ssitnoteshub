@@ -12,18 +12,24 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CATEGORIES, COURSES, categoryLabel } from "@/lib/catalog";
+import { COURSES, categoryLabel } from "@/lib/catalog";
 import { uploadDocument } from "@/lib/documents";
 
 export function UploadDialog({
   course,
   semester,
   category,
+  subject: fixedSubject,
+  contextLabel,
+  size = "sm",
   onUploaded,
 }: {
   course: string;
   semester: number;
   category: string;
+  subject?: string;
+  contextLabel?: string;
+  size?: "sm" | "default";
   onUploaded: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -48,13 +54,21 @@ export function UploadDialog({
       toast.error("Only PDF files are allowed.");
       return;
     }
-    if (!subject.trim()) {
+    const finalSubject = fixedSubject ?? subject;
+    if (!finalSubject.trim()) {
       toast.error("Enter the subject name.");
       return;
     }
     setBusy(true);
     try {
-      await uploadDocument({ file, course, semester, subject, category, title });
+      await uploadDocument({
+        file,
+        course,
+        semester,
+        subject: finalSubject,
+        category,
+        title: title || contextLabel || "",
+      });
       toast.success("PDF uploaded successfully.");
       reset();
       setOpen(false);
@@ -75,28 +89,30 @@ export function UploadDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button size={size} className="rounded-full">
           <Upload className="h-4 w-4" /> Upload PDF
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload {categoryLabel(category)}</DialogTitle>
+          <DialogTitle>Upload PDF</DialogTitle>
           <DialogDescription>
             {COURSES.find((c) => c.id === course)?.name ?? course} · Semester {semester} ·{" "}
-            {CATEGORIES.find((c) => c.id === category)?.label}
+            {contextLabel ?? categoryLabel(category)}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="subject">Subject</Label>
-            <Input
-              id="subject"
-              placeholder="e.g. Data Structures"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </div>
+          {!fixedSubject && (
+            <div className="space-y-2">
+              <Label htmlFor="subject">Subject</Label>
+              <Input
+                id="subject"
+                placeholder="e.g. Data Structures"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="title">Title (optional)</Label>
             <Input
