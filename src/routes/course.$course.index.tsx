@@ -19,19 +19,20 @@ export const Route = createFileRoute("/course/$course/")({
       ],
     };
   },
-  beforeLoad: ({ params }) => {
-    if (!getCourse(params.course)) throw notFound();
-  },
   component: CoursePage,
 });
 
 function CoursePage() {
   const { course: courseParam } = Route.useParams();
-  const course = getCourse(courseParam)!;
+  const course = getCourse(courseParam);
   const { data: docs = [] } = useQuery({
-    queryKey: ["documents", course.id],
-    queryFn: () => fetchDocuments({ course: course.id }),
+    queryKey: ["documents", course?.id],
+    queryFn: () => fetchDocuments({ course: course!.id }),
+    enabled: !!course,
   });
+
+  if (!course) return <NotFoundScreen message="That course isn't available." />;
+
 
   return (
     <div className="min-h-screen bg-background">
