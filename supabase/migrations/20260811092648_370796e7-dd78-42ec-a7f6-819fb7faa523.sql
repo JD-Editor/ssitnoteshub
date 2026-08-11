@@ -1,0 +1,1 @@
+DELETE FROM public.documents WHERE subject = 'Test Subject QA';
