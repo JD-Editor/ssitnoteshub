@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { DocumentCard } from "@/components/DocumentCard";
 import { fetchDocuments } from "@/lib/documents";
 import { useBookmarks } from "@/lib/bookmarks";
@@ -54,6 +55,7 @@ function BookmarksPage() {
           </div>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }

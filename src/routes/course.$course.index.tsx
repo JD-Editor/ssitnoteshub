@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { NotFoundScreen } from "@/components/NotFoundScreen";
 import { getCourse } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
@@ -65,6 +66,7 @@ function CoursePage() {
           ))}
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
