@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CourseCourseIndexRouteImport } from './routes/course.$course.index'
 import { Route as CourseCourseSemesterIndexRouteImport } from './routes/course.$course.$semester.index'
@@ -19,11 +18,6 @@ import { Route as CourseCourseSemesterSubjectRouteImport } from './routes/course
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -51,7 +45,6 @@ const CourseCourseSemesterSubjectRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/bookmarks': typeof BookmarksRoute
   '/course/$course/': typeof CourseCourseIndexRoute
   '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
@@ -59,7 +52,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/bookmarks': typeof BookmarksRoute
   '/course/$course': typeof CourseCourseIndexRoute
   '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
@@ -68,7 +60,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/bookmarks': typeof BookmarksRoute
   '/course/$course/': typeof CourseCourseIndexRoute
   '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
@@ -78,7 +69,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/admin'
     | '/bookmarks'
     | '/course/$course/'
     | '/course/$course/$semester/$subject'
@@ -86,7 +76,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/bookmarks'
     | '/course/$course'
     | '/course/$course/$semester/$subject'
@@ -94,7 +83,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/admin'
     | '/bookmarks'
     | '/course/$course/'
     | '/course/$course/$semester/$subject'
@@ -103,7 +91,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
   BookmarksRoute: typeof BookmarksRoute
   CourseCourseIndexRoute: typeof CourseCourseIndexRoute
   CourseCourseSemesterSubjectRoute: typeof CourseCourseSemesterSubjectRoute
@@ -117,13 +104,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -159,7 +139,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
   BookmarksRoute: BookmarksRoute,
   CourseCourseIndexRoute: CourseCourseIndexRoute,
   CourseCourseSemesterSubjectRoute: CourseCourseSemesterSubjectRoute,

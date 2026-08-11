@@ -10,6 +10,7 @@ export type DocumentRow = {
   file_name: string;
   file_path: string;
   size_bytes: number;
+  description: string | null;
   created_at: string;
 };
 
@@ -42,13 +43,17 @@ export async function uploadDocument(input: {
   subject: string;
   category: string;
   title: string;
+  description?: string;
 }) {
   const safeName = input.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const path = `${input.course}/sem-${input.semester}/${input.category}/${Date.now()}-${safeName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("pdfs")
-    .upload(path, input.file, { contentType: "application/pdf", upsert: false });
+    .upload(path, input.file, {
+      contentType: input.file.type || "application/octet-stream",
+      upsert: false,
+    });
   if (uploadError) throw uploadError;
 
   const { error: insertError } = await supabase.from("documents").insert({
@@ -56,10 +61,11 @@ export async function uploadDocument(input: {
     semester: input.semester,
     subject: input.subject.trim(),
     category: input.category,
-    title: input.title.trim() || input.file.name.replace(/\.pdf$/i, ""),
+    title: input.title.trim() || input.file.name.replace(/\.[^.]+$/, ""),
     file_name: input.file.name,
     file_path: path,
     size_bytes: input.file.size,
+    description: input.description?.trim() || null,
   });
   if (insertError) throw insertError;
 }

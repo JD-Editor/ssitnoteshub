@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { GraduationCap, Search } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { DocumentCard } from "@/components/DocumentCard";
+import { UploadDialog } from "@/components/UploadDialog";
 import { Input } from "@/components/ui/input";
-import { COURSES } from "@/lib/catalog";
+import { COURSES, TYPE_FILTERS, matchesTypeFilter } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
 import { getSections, getSubjects } from "@/lib/syllabus";
 import { useBookmarks } from "@/lib/bookmarks";
@@ -14,16 +16,16 @@ import hero from "@/assets/hero-image.asset.json";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SSIT Study Hub | Textbook PDFs, PYQs & Practicals" },
+      { title: "SSIT Notes Hub | Textbook PDFs, PYQs & Practicals" },
       {
         name: "description",
         content:
           "Free textbook PDFs, previous year question papers and practicals for BCA, MCA and IT students of Shree Swaminarayan Institute of Technology, Gandhinagar.",
       },
-      { property: "og:title", content: "SSIT Study Hub | Textbook PDFs, PYQs & Practicals" },
+      { property: "og:title", content: "SSIT Notes Hub | Textbook PDFs, PYQs & Practicals" },
       {
         property: "og:description",
-        content: "Browse and download semester-wise study material for BCA, MCA and IT.",
+        content: "Browse, upload and download semester-wise study material for BCA, MCA and IT.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -71,6 +73,11 @@ const SYLLABUS_INDEX = buildSyllabusIndex();
 
 function Home() {
   const [search, setSearch] = useState("");
+  const [courseFilter, setCourseFilter] = useState("");
+  const [semesterFilter, setSemesterFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const qc = useQueryClient();
+
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: () => fetchDocuments(),
@@ -78,25 +85,42 @@ function Home() {
   const { isBookmarked, toggle } = useBookmarks();
 
   const query = search.trim().toLowerCase();
+  const filtering = !!query || !!courseFilter || !!semesterFilter || !!typeFilter;
+  const maxSemesters = courseFilter
+    ? (COURSES.find((c) => c.id === courseFilter)?.semesters ?? 6)
+    : 6;
 
   const results = useMemo(() => {
-    if (!query) return [];
-    return docs.filter((d) =>
-      [d.title, d.subject, d.course, d.category, `semester ${d.semester}`]
+    if (!filtering) return [];
+    return docs.filter((d) => {
+      if (courseFilter && d.course !== courseFilter) return false;
+      if (semesterFilter && String(d.semester) !== semesterFilter) return false;
+      if (typeFilter && !matchesTypeFilter(d.category, typeFilter)) return false;
+      if (!query) return true;
+      return [d.title, d.file_name, d.subject, d.course, d.category, `semester ${d.semester}`]
         .join(" ")
         .toLowerCase()
-        .includes(query),
-    );
-  }, [docs, query]);
+        .includes(query);
+    });
+  }, [docs, query, courseFilter, semesterFilter, typeFilter, filtering]);
 
   const syllabusResults = useMemo(() => {
     if (!query) return [];
-    return SYLLABUS_INDEX.filter((h) =>
-      `${h.course} semester ${h.semester} ${h.subjectName} ${h.detail}`
+    return SYLLABUS_INDEX.filter((h) => {
+      if (courseFilter && h.course !== courseFilter) return false;
+      if (semesterFilter && String(h.semester) !== semesterFilter) return false;
+      return `${h.course} semester ${h.semester} ${h.subjectName} ${h.detail}`
         .toLowerCase()
-        .includes(query),
-    ).slice(0, 12);
-  }, [query]);
+        .includes(query);
+    }).slice(0, 12);
+  }, [query, courseFilter, semesterFilter]);
+
+  const chip = (active: boolean) =>
+    `rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+      active
+        ? "border-primary bg-primary text-primary-foreground"
+        : "border-border bg-card text-muted-foreground hover:bg-secondary"
+    }`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -114,20 +138,27 @@ function Home() {
             <span className="chip-hero">Shree Swaminarayan Institute of Technology</span>
             <div>
               <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-primary-foreground drop-shadow-sm sm:text-6xl">
-                Welcome to SSIT Study Hub
+                Welcome to SSIT Notes Hub
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-primary-foreground/90 sm:text-lg">
                 Everything you need in one place — semester-wise notes, previous year question
-                papers and practicals for BCA, MCA and IT.
+                papers and practicals for BCA, MCA and IT. Anyone can upload and share.
               </p>
             </div>
-            <div className="relative w-full max-w-xl">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search semester, subject, unit or PYQs…"
-                className="h-13 rounded-full border-0 bg-card pl-11 text-base shadow-lg"
+            <div className="flex w-full max-w-xl flex-wrap items-center gap-3">
+              <div className="relative min-w-0 flex-1">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search file, subject, semester or PYQs…"
+                  className="h-13 rounded-full border-0 bg-card pl-11 text-base shadow-lg"
+                />
+              </div>
+              <UploadDialog
+                size="default"
+                label="Upload File"
+                onUploaded={() => void qc.invalidateQueries({ queryKey: ["documents"] })}
               />
             </div>
           </div>
@@ -135,8 +166,60 @@ function Home() {
       </section>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
-        {query ? (
-          <section className="space-y-8">
+        <section aria-label="Filters" className="flex flex-wrap items-center gap-2">
+          {COURSES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className={chip(courseFilter === c.id)}
+              onClick={() => {
+                setCourseFilter((prev) => (prev === c.id ? "" : c.id));
+                setSemesterFilter("");
+              }}
+            >
+              {c.name}
+            </button>
+          ))}
+          <span className="mx-1 hidden h-5 w-px bg-border sm:block" />
+          {Array.from({ length: maxSemesters }, (_, i) => i + 1).map((s) => (
+            <button
+              key={s}
+              type="button"
+              className={chip(semesterFilter === String(s))}
+              onClick={() => setSemesterFilter((prev) => (prev === String(s) ? "" : String(s)))}
+            >
+              Sem {s}
+            </button>
+          ))}
+          <span className="mx-1 hidden h-5 w-px bg-border sm:block" />
+          {TYPE_FILTERS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={chip(typeFilter === t.id)}
+              onClick={() => setTypeFilter((prev) => (prev === t.id ? "" : t.id))}
+            >
+              {t.label}
+            </button>
+          ))}
+          {filtering && (
+            <button
+              type="button"
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-primary underline-offset-4 hover:underline"
+              onClick={() => {
+                setSearch("");
+                setCourseFilter("");
+                setSemesterFilter("");
+                setTypeFilter("");
+              }}
+            >
+              Clear all
+            </button>
+          )}
+        </section>
+
+        {filtering ? (
+          <section className="mt-8 space-y-8">
             {syllabusResults.length > 0 && (
               <div>
                 <h2 className="text-xl font-bold text-foreground">Subjects & units</h2>
@@ -166,7 +249,8 @@ function Home() {
 
             <div>
               <h2 className="text-xl font-bold text-foreground">
-                {results.length} PDF{results.length === 1 ? "" : "s"} for “{search}”
+                {results.length} file{results.length === 1 ? "" : "s"}
+                {search ? ` for “${search}”` : ""}
               </h2>
               {isLoading ? (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -188,13 +272,13 @@ function Home() {
               )}
               {!isLoading && results.length === 0 && (
                 <p className="mt-4 text-sm text-muted-foreground">
-                  No uploaded PDF matched your search yet.
+                  No uploaded file matched yet — be the first to upload one.
                 </p>
               )}
             </div>
           </section>
         ) : (
-          <section>
+          <section className="mt-8">
             <h2 className="text-2xl font-black tracking-tight text-foreground">Courses</h2>
             <p className="text-sm text-muted-foreground">Pick your course to browse semesters.</p>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -222,6 +306,7 @@ function Home() {
           </section>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bookmark, Download, Eye, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { categoryLabel, formatSize } from "@/lib/catalog";
+import { categoryLabel, formatDate, formatSize } from "@/lib/catalog";
 import { getFileUrl, type DocumentRow } from "@/lib/documents";
 
 export function DocumentCard({
@@ -45,14 +45,20 @@ export function DocumentCard({
         </span>
         <div className="min-w-0">
           <h3 className="truncate font-semibold text-foreground">{doc.title}</h3>
+          <p className="truncate text-xs text-muted-foreground">{doc.file_name}</p>
           <p className="truncate text-xs text-muted-foreground">
-            {doc.course} · Sem {doc.semester} · {doc.subject} · {categoryLabel(doc.category)} ·{" "}
-            {formatSize(doc.size_bytes)}
+            {doc.course} · Sem {doc.semester} · {doc.subject} · {categoryLabel(doc.category)}
           </p>
+          <p className="truncate text-xs text-muted-foreground">
+            {formatSize(doc.size_bytes)} · {formatDate(doc.created_at)}
+          </p>
+          {doc.description ? (
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{doc.description}</p>
+          ) : null}
         </div>
         <button
           type="button"
-          aria-label={bookmarked ? "Remove bookmark" : "Bookmark this PDF"}
+          aria-label={bookmarked ? "Remove bookmark" : "Bookmark this file"}
           onClick={() => onToggleBookmark(doc.id)}
           className={`shrink-0 rounded-full border border-border p-2 transition-colors ${
             bookmarked ? "bg-accent text-accent-foreground" : "bg-background text-muted-foreground"

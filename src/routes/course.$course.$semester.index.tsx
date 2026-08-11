@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, ChevronRight, FileStack, FlaskConical } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { DocumentCard } from "@/components/DocumentCard";
 import { UploadDialog } from "@/components/UploadDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,13 +10,12 @@ import { CATEGORIES, getCourse } from "@/lib/catalog";
 import { fetchDocuments, type DocumentRow } from "@/lib/documents";
 import { getSubjects } from "@/lib/syllabus";
 import { useBookmarks } from "@/lib/bookmarks";
-import { useAdmin } from "@/lib/admin";
 import { NotFoundScreen } from "@/components/NotFoundScreen";
 
 export const Route = createFileRoute("/course/$course/$semester/")({
   head: ({ params }) => {
     const c = getCourse(params.course);
-    const title = `${c?.name ?? params.course} Semester ${params.semester} Subjects | SSIT Study Hub`;
+    const title = `${c?.name ?? params.course} Semester ${params.semester} Subjects | SSIT Notes Hub`;
     const description = `Subject-wise textbook PDFs, practicals and PYQs for ${c?.name ?? params.course} semester ${params.semester} at SSIT Gandhinagar.`;
     return {
       meta: [
@@ -36,7 +36,6 @@ function SemesterPage() {
   const course = getCourse(params.course);
   const semester = Number(params.semester);
   const { isBookmarked, toggle } = useBookmarks();
-  const { isAdmin } = useAdmin();
 
   const valid =
     !!course && Number.isInteger(semester) && semester >= 1 && semester <= (course?.semesters ?? 0);
@@ -141,7 +140,7 @@ function SemesterPage() {
                 <TabsContent key={cat.id} value={cat.id} className="mt-5 space-y-6">
                   <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                     <h2 className="truncate text-lg font-bold text-foreground">{cat.label}</h2>
-                    {isAdmin && (
+                    {(
                       <UploadDialog
                         course={course.id}
                         semester={semester}
@@ -180,6 +179,7 @@ function SemesterPage() {
           </Tabs>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }

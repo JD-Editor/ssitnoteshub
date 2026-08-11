@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { NotFoundScreen } from "@/components/NotFoundScreen";
 import { getCourse } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
@@ -10,7 +11,7 @@ import { fetchDocuments } from "@/lib/documents";
 export const Route = createFileRoute("/course/$course/")({
   head: ({ params }) => {
     const c = getCourse(params.course);
-    const title = `${c?.name ?? params.course} Semesters | SSIT Study Hub`;
+    const title = `${c?.name ?? params.course} Semesters | SSIT Notes Hub`;
     const description = `Semester-wise notes, PYQs and practicals for ${c?.full ?? params.course} at SSIT Gandhinagar.`;
     return {
       meta: [
@@ -65,6 +66,7 @@ function CoursePage() {
           ))}
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
