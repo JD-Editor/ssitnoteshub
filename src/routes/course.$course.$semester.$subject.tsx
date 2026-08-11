@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BookMarked, FlaskConical, Layers } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { DocumentCard } from "@/components/DocumentCard";
 import { UploadDialog } from "@/components/UploadDialog";
 import { NotFoundScreen } from "@/components/NotFoundScreen";
@@ -9,7 +10,6 @@ import { getCourse } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
 import { getSections, getSubject, type Section } from "@/lib/syllabus";
 import { useBookmarks } from "@/lib/bookmarks";
-import { useAdmin } from "@/lib/admin";
 
 export const Route = createFileRoute("/course/$course/$semester/$subject")({
   head: ({ params }) => {
@@ -37,7 +37,6 @@ function SubjectPage() {
   const semester = Number(params.semester);
   const subject = course ? getSubject(course.id, semester, params.subject) : undefined;
   const { isBookmarked, toggle } = useBookmarks();
-  const { isAdmin } = useAdmin();
 
   const { data: docs = [], refetch } = useQuery({
     queryKey: ["documents", course?.id, semester],
@@ -61,7 +60,7 @@ function SubjectPage() {
       <article className="glass-card rounded-3xl p-5">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <h3 className="min-w-0 text-base font-bold text-foreground">{section.label}</h3>
-          {isAdmin && (
+          {(
             <UploadDialog
               course={course.id}
               semester={semester}
@@ -146,6 +145,7 @@ function SubjectPage() {
           items={pyqs}
         />
       </main>
+      <SiteFooter />
     </div>
   );
 }
