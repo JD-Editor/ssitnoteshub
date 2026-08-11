@@ -9,12 +9,12 @@ import { useBookmarks } from "@/lib/bookmarks";
 export const Route = createFileRoute("/bookmarks")({
   head: () => ({
     meta: [
-      { title: "My Bookmarks | SSIT Study Hub" },
+      { title: "My Bookmarks | SSIT Notes Hub" },
       {
         name: "description",
         content: "Your saved PDFs — notes, PYQs and practicals bookmarked on this device.",
       },
-      { property: "og:title", content: "My Bookmarks | SSIT Study Hub" },
+      { property: "og:title", content: "My Bookmarks | SSIT Notes Hub" },
       { property: "og:description", content: "Quick access to the PDFs you saved on this device." },
     ],
   }),

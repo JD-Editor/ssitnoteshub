@@ -15,7 +15,7 @@ import { NotFoundScreen } from "@/components/NotFoundScreen";
 export const Route = createFileRoute("/course/$course/$semester/")({
   head: ({ params }) => {
     const c = getCourse(params.course);
-    const title = `${c?.name ?? params.course} Semester ${params.semester} Subjects | SSIT Study Hub`;
+    const title = `${c?.name ?? params.course} Semester ${params.semester} Subjects | SSIT Notes Hub`;
     const description = `Subject-wise textbook PDFs, practicals and PYQs for ${c?.name ?? params.course} semester ${params.semester} at SSIT Gandhinagar.`;
     return {
       meta: [

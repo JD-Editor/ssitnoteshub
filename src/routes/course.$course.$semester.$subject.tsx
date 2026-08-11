@@ -15,7 +15,7 @@ export const Route = createFileRoute("/course/$course/$semester/$subject")({
   head: ({ params }) => {
     const subject = getSubject(params.course.toUpperCase(), Number(params.semester), params.subject);
     const name = subject?.name ?? params.subject;
-    const title = `${name} — Sem ${params.semester} ${params.course.toUpperCase()} | SSIT Study Hub`;
+    const title = `${name} — Sem ${params.semester} ${params.course.toUpperCase()} | SSIT Notes Hub`;
     const description = `Textbook PDFs, practicals and previous year question papers for ${name}, semester ${params.semester} ${params.course.toUpperCase()} at SSIT Gandhinagar.`;
     return {
       meta: [

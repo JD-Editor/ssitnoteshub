@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SSIT Study Hub" },
+      { title: "SSIT Notes Hub" },
       {
         name: "description",
         content: "Notes, PYQs and practicals for BCA, MCA and IT students at SSIT Gandhinagar.",
       },
       { name: "author", content: "SSIT Gandhinagar" },
-      { property: "og:title", content: "SSIT Study Hub" },
+      { property: "og:title", content: "SSIT Notes Hub" },
       {
         property: "og:description",
         content: "Notes, PYQs and practicals for BCA, MCA and IT students at SSIT Gandhinagar.",

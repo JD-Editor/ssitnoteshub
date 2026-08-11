@@ -11,7 +11,7 @@ import { fetchDocuments } from "@/lib/documents";
 export const Route = createFileRoute("/course/$course/")({
   head: ({ params }) => {
     const c = getCourse(params.course);
-    const title = `${c?.name ?? params.course} Semesters | SSIT Study Hub`;
+    const title = `${c?.name ?? params.course} Semesters | SSIT Notes Hub`;
     const description = `Semester-wise notes, PYQs and practicals for ${c?.full ?? params.course} at SSIT Gandhinagar.`;
     return {
       meta: [
