@@ -1,12 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
 import logo from "@/assets/ssit_logo.asset.json";
 import { COURSES } from "@/lib/catalog";
 
 const socials = [
   { label: "Facebook", Icon: Facebook, href: "https://facebook.com" },
   { label: "Instagram", Icon: Instagram, href: "https://instagram.com" },
-  { label: "LinkedIn", Icon: Linkedin, href: "https://linkedin.com" },
   { label: "YouTube", Icon: Youtube, href: "https://youtube.com" },
 ];
 
