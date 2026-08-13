@@ -67,13 +67,15 @@ export function DocumentCard({
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" disabled={busy} onClick={() => open("view")}>
+        <Button size="sm" onClick={() => setViewerOpen(true)}>
           <Eye className="h-4 w-4" /> View
         </Button>
-        <Button size="sm" variant="outline" disabled={busy} onClick={() => open("download")}>
+        <Button size="sm" variant="outline" disabled={busy} onClick={() => void download()}>
           <Download className="h-4 w-4" /> Download
         </Button>
       </div>
+      <FileViewerDialog doc={doc} open={viewerOpen} onOpenChange={setViewerOpen} />
     </article>
   );
 }
+
