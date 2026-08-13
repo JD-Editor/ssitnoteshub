@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bookmark, Download, Eye, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { FileViewerDialog } from "@/components/FileViewerDialog";
 import { categoryLabel, formatDate, formatSize } from "@/lib/catalog";
 import { getFileUrl, type DocumentRow } from "@/lib/documents";
 
@@ -15,27 +16,25 @@ export function DocumentCard({
   onToggleBookmark: (id: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
-  const open = async (mode: "view" | "download") => {
+  const download = async () => {
     setBusy(true);
     try {
-      const url = await getFileUrl(doc.file_path, mode === "download" ? doc.file_name : undefined);
-      if (mode === "view") {
-        window.open(url, "_blank", "noopener");
-      } else {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = doc.file_name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
+      const url = await getFileUrl(doc.file_path, doc.file_name);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.file_name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     } catch {
-      toast.error("Could not open this file. Please try again.");
+      toast.error("Could not download this file. Please try again.");
     } finally {
       setBusy(false);
     }
   };
+
 
   return (
     <article className="card-soft flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
