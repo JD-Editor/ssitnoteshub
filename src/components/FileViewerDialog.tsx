@@ -59,9 +59,14 @@ export function FileViewerDialog({
     }
   };
 
+  const openInNewTab = () => {
+    if (!url) return;
+    window.open(url, "_blank", "noopener");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[90vh] w-[96vw] max-w-5xl flex-col gap-3 p-4 sm:p-6">
+      <DialogContent className="flex max-w-lg flex-col gap-4 p-5 sm:p-6">
         <DialogHeader className="pr-8 text-left">
           <DialogTitle className="truncate text-base sm:text-lg">{doc.title}</DialogTitle>
           <p className="truncate text-xs text-muted-foreground">
@@ -76,29 +81,23 @@ export function FileViewerDialog({
           <Button
             size="sm"
             variant="outline"
-            disabled={!url}
-            onClick={() => url && window.open(url, "_blank", "noopener")}
+            disabled={!url || loading}
+            onClick={() => void openInNewTab()}
           >
-            <ExternalLink className="h-4 w-4" /> Open in new tab
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ExternalLink className="h-4 w-4" />
+            )}
+            Open in new tab
           </Button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-border bg-secondary">
-          {loading || !url ? (
-            <div className="grid h-full place-items-center text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" /> Loading preview…
-              </span>
-            </div>
-          ) : (
-            <iframe
-              src={url}
-              title={doc.title}
-              className="h-full w-full border-0 bg-background"
-            />
-          )}
-        </div>
+        <p className="text-sm text-muted-foreground">
+          The PDF will open in your browser&apos;s native PDF viewer in a new tab.
+        </p>
       </DialogContent>
     </Dialog>
   );
 }
+
