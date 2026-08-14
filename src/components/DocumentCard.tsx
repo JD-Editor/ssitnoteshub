@@ -36,7 +36,9 @@ export function DocumentCard({
   const openInNewTab = async () => {
     setBusy(true);
     // Open the tab synchronously from the user gesture so the popup is not blocked.
-    const tab = window.open("about:blank", "_blank", "noopener");
+    // We avoid the "noopener" feature string here so we can navigate the tab after
+    // fetching the signed URL, then clear the opener reference for security.
+    const tab = window.open("about:blank", "_blank");
     if (!tab) {
       toast.error("Could not open a new tab. Please allow popups for this site.");
       setBusy(false);
@@ -45,6 +47,7 @@ export function DocumentCard({
     try {
       const url = await getFileUrl(doc.file_path);
       tab.location.href = url;
+      tab.opener = null;
     } catch {
       tab.close();
       toast.error("Could not open this file. Please try again.");
@@ -52,6 +55,7 @@ export function DocumentCard({
       setBusy(false);
     }
   };
+
 
   return (
     <article className="card-soft flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
