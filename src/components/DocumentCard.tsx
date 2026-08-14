@@ -35,26 +35,16 @@ export function DocumentCard({
 
   const openInNewTab = async () => {
     setBusy(true);
-    // Open the tab synchronously from the user gesture so the popup is not blocked.
-    // We avoid the "noopener" feature string here so we can navigate the tab after
-    // fetching the signed URL, then clear the opener reference for security.
-    const tab = window.open("about:blank", "_blank");
-    if (!tab) {
-      toast.error("Could not open a new tab. Please allow popups for this site.");
-      setBusy(false);
-      return;
-    }
     try {
       const url = await getFileUrl(doc.file_path);
-      tab.location.href = url;
-      tab.opener = null;
+      window.open(url, "_blank", "noopener");
     } catch {
-      tab.close();
       toast.error("Could not open this file. Please try again.");
     } finally {
       setBusy(false);
     }
   };
+
 
 
   return (
