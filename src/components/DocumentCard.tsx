@@ -35,10 +35,18 @@ export function DocumentCard({
 
   const openInNewTab = async () => {
     setBusy(true);
+    // Open the tab synchronously from the user gesture so the popup is not blocked.
+    const tab = window.open("about:blank", "_blank", "noopener");
+    if (!tab) {
+      toast.error("Could not open a new tab. Please allow popups for this site.");
+      setBusy(false);
+      return;
+    }
     try {
       const url = await getFileUrl(doc.file_path);
-      window.open(url, "_blank", "noopener");
+      tab.location.href = url;
     } catch {
+      tab.close();
       toast.error("Could not open this file. Please try again.");
     } finally {
       setBusy(false);
@@ -96,5 +104,6 @@ export function DocumentCard({
     </article>
   );
 }
+
 
 
