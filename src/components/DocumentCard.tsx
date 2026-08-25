@@ -82,7 +82,7 @@ export function DocumentCard({
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" onClick={() => void openInNewTab()}>
+        <Button size="sm" onClick={() => setViewing(true)}>
           <Eye className="h-4 w-4" /> View
         </Button>
         <Button
