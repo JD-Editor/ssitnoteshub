@@ -103,7 +103,7 @@ export function PdfViewerDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
       aria-modal="true"
       aria-label={`Preview of ${doc.title}`}
@@ -185,7 +185,7 @@ export function PdfViewerDialog({
       </header>
 
       {/* Document area */}
-      <main className="flex flex-1 items-stretch justify-center overflow-auto bg-secondary/40 p-3 sm:p-6">
+      <main className="flex flex-1 items-stretch justify-center overflow-auto bg-secondary p-3 sm:p-6">
         {status === "loading" && (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin" />
