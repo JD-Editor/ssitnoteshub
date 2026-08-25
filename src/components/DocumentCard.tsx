@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bookmark, Download, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { PdfViewerDialog } from "@/components/PdfViewerDialog";
 import { categoryLabel, formatDate, formatSize } from "@/lib/catalog";
 import { getFileUrl, type DocumentRow } from "@/lib/documents";
 
@@ -15,6 +16,7 @@ export function DocumentCard({
   onToggleBookmark: (id: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [viewing, setViewing] = useState(false);
 
   const download = async () => {
     setBusy(true);
@@ -80,7 +82,7 @@ export function DocumentCard({
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" onClick={() => void openInNewTab()}>
+        <Button size="sm" onClick={() => setViewing(true)}>
           <Eye className="h-4 w-4" /> View
         </Button>
         <Button
@@ -95,6 +97,15 @@ export function DocumentCard({
           <Download className="h-4 w-4" /> Download
         </Button>
       </div>
+      {viewing && (
+        <PdfViewerDialog
+          doc={doc}
+          bookmarked={bookmarked}
+          onToggleBookmark={onToggleBookmark}
+          onDownload={() => download()}
+          onClose={() => setViewing(false)}
+        />
+      )}
     </article>
   );
 }
