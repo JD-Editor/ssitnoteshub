@@ -97,6 +97,15 @@ export function DocumentCard({
           <Download className="h-4 w-4" /> Download
         </Button>
       </div>
+      {viewing && (
+        <PdfViewerDialog
+          doc={doc}
+          bookmarked={bookmarked}
+          onToggleBookmark={onToggleBookmark}
+          onDownload={() => download()}
+          onClose={() => setViewing(false)}
+        />
+      )}
     </article>
   );
 }
