@@ -16,6 +16,7 @@ export function DocumentCard({
   onToggleBookmark: (id: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [viewing, setViewing] = useState(false);
 
   const download = async () => {
     setBusy(true);
