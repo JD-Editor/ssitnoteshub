@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bookmark, Download, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { PdfViewerDialog } from "@/components/PdfViewerDialog";
 import { categoryLabel, formatDate, formatSize } from "@/lib/catalog";
 import { getFileUrl, type DocumentRow } from "@/lib/documents";
 
