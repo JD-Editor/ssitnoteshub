@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bookmark, Download, ExternalLink, Eye } from "lucide-react";
+import { Bookmark, Download, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PdfViewerDialog } from "@/components/PdfViewerDialog";
@@ -35,17 +35,6 @@ export function DocumentCard({
     }
   };
 
-  const openInNewTab = async () => {
-    setBusy(true);
-    try {
-      const url = await getFileUrl(doc.file_path);
-      window.open(url, "_blank", "noopener");
-    } catch {
-      toast.error("Could not open this file. Please try again.");
-    } finally {
-      setBusy(false);
-    }
-  };
 
 
 
@@ -84,14 +73,6 @@ export function DocumentCard({
       <div className="flex flex-wrap gap-2">
         <Button size="sm" onClick={() => setViewing(true)}>
           <Eye className="h-4 w-4" /> View
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={busy}
-          onClick={() => void openInNewTab()}
-        >
-          <ExternalLink className="h-4 w-4" /> Open in new tab
         </Button>
         <Button size="sm" variant="outline" disabled={busy} onClick={() => void download()}>
           <Download className="h-4 w-4" /> Download
