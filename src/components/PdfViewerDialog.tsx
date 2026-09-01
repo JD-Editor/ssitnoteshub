@@ -239,6 +239,7 @@ export function PdfViewerDialog({
           </div>
         )}
       </main>
-    </div>
+    </div>,
+    document.body,
   );
 }
