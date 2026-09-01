@@ -154,14 +154,6 @@ export function PdfViewerDialog({
             <span className="hidden sm:inline">Download</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => void openInNewTab()}
-            title="Open in new tab"
-            className="hidden rounded-full bg-white/10 p-2 text-primary-foreground transition-colors hover:bg-white/20 sm:inline-flex"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </button>
 
           {isPdf && status === "ready" && (
             <button
@@ -216,17 +208,10 @@ export function PdfViewerDialog({
                     : "The preview could not be loaded."}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  You can still open the file directly in a new tab or download it.
+                  You can still download the file.
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => void openInNewTab()}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" /> Open in new tab
-                </button>
                 <button
                   type="button"
                   onClick={() => void onDownload(doc)}
