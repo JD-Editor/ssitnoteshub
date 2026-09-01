@@ -102,7 +102,7 @@ export function PdfViewerDialog({
     }
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
@@ -239,6 +239,7 @@ export function PdfViewerDialog({
           </div>
         )}
       </main>
-    </div>
+    </div>,
+    document.body,
   );
 }
