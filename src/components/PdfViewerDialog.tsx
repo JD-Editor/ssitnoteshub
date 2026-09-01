@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import {
   Bookmark,
   Download,
-  ExternalLink,
+  
   FileText,
   Loader2,
   Printer,
@@ -93,14 +93,6 @@ export function PdfViewerDialog({
     }
   };
 
-  const openInNewTab = async () => {
-    try {
-      const signedUrl = await getFileUrl(doc.file_path);
-      window.open(signedUrl, "_blank", "noopener");
-    } catch {
-      toast.error("Could not open this file. Please try again.");
-    }
-  };
 
   return createPortal(
     <div
