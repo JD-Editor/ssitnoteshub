@@ -3,11 +3,12 @@ import { createPortal } from "react-dom";
 import {
   Bookmark,
   Download,
-  
   FileText,
   Loader2,
   Printer,
   X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/ssit_logo.asset.json";
@@ -30,8 +31,9 @@ export function PdfViewerDialog({
   onClose: () => void;
 }) {
   const [status, setStatus] = useState<Status>("loading");
-  const [url, setUrl] = useState<string | null>(null);
-  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [pageCount, setPageCount] = useState(0);
+  const [zoom, setZoom] = useState(100);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const isPdf = !!doc && /\.pdf$/i.test(doc.file_name);
 
@@ -42,27 +44,49 @@ export function PdfViewerDialog({
       return;
     }
 
-    let objectUrl: string | null = null;
     let cancelled = false;
+    let pdfDoc: { numPages: number; getPage: (n: number) => Promise<any>; destroy: () => void } | null =
+      null;
     setStatus("loading");
-    setUrl(null);
+    setPageCount(0);
 
     (async () => {
       try {
-        // Fetch the PDF bytes through the signed URL, then serve them from a
-        // same-origin blob URL — this is what lets Chrome render the preview
-        // inline instead of showing "This page has been blocked by Chrome".
+        const pdfjs: any = await import("pdfjs-dist");
+        const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+        pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+
         const signedUrl = await getFileUrl(doc.file_path);
         const res = await fetch(signedUrl);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const blob = await res.blob();
-        objectUrl = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
-        if (cancelled) {
-          URL.revokeObjectURL(objectUrl);
-          return;
-        }
-        setUrl(objectUrl);
+        const data = await res.arrayBuffer();
+        if (cancelled) return;
+
+        pdfDoc = await pdfjs.getDocument({ data }).promise;
+        if (cancelled || !pdfDoc) return;
+        setPageCount(pdfDoc.numPages);
         setStatus("ready");
+
+        const host = containerRef.current;
+        if (!host) return;
+        host.innerHTML = "";
+
+        const scale = Math.min(2, (typeof window !== "undefined" ? window.devicePixelRatio : 1) || 1) * 1.4;
+
+        for (let i = 1; i <= pdfDoc.numPages; i++) {
+          if (cancelled) return;
+          const page = await pdfDoc.getPage(i);
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          canvas.className =
+            "mx-auto mb-4 w-full max-w-4xl rounded-xl border border-border bg-white shadow-xl";
+          const ctx = canvas.getContext("2d");
+          if (!ctx) continue;
+          host.appendChild(canvas);
+          await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+        }
       } catch {
         if (!cancelled) setStatus("error");
       }
@@ -70,7 +94,7 @@ export function PdfViewerDialog({
 
     return () => {
       cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      pdfDoc?.destroy?.();
     };
   }, [doc, isPdf]);
 
@@ -87,12 +111,11 @@ export function PdfViewerDialog({
 
   const handlePrint = () => {
     try {
-      frameRef.current?.contentWindow?.print();
+      window.print();
     } catch {
       toast.error("Printing is not available for this file. Download it instead.");
     }
   };
-
 
   return createPortal(
     <div
@@ -121,6 +144,32 @@ export function PdfViewerDialog({
           </div>
         </div>
 
+        {status === "ready" && (
+          <div className="hidden items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 md:flex">
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.max(60, z - 15))}
+              title="Zoom out"
+              className="p-1 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+            <span className="w-11 text-center font-mono text-xs">{zoom}%</span>
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.min(200, z + 15))}
+              title="Zoom in"
+              className="p-1 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button>
+            <span className="mx-1 h-4 w-px bg-white/20" />
+            <span className="text-xs font-medium">
+              {pageCount} {pageCount === 1 ? "page" : "pages"}
+            </span>
+          </div>
+        )}
+
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
@@ -146,7 +195,6 @@ export function PdfViewerDialog({
             <span className="hidden sm:inline">Download</span>
           </button>
 
-
           {isPdf && status === "ready" && (
             <button
               type="button"
@@ -170,25 +218,22 @@ export function PdfViewerDialog({
       </header>
 
       {/* Document area */}
-      <main className="flex flex-1 items-stretch justify-center overflow-auto bg-secondary p-3 sm:p-6">
+      <main className="flex-1 overflow-auto bg-secondary p-3 sm:p-6">
         {status === "loading" && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
+          <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin" />
             <p className="text-sm">Loading preview…</p>
           </div>
         )}
 
-        {status === "ready" && url && (
-          <iframe
-            ref={frameRef}
-            src={url}
-            title={doc.title}
-            className="h-full w-full max-w-6xl rounded-xl border border-border bg-white shadow-2xl"
-          />
-        )}
+        <div
+          ref={containerRef}
+          className={status === "ready" ? "mx-auto origin-top transition-transform" : "hidden"}
+          style={{ width: `${zoom}%` }}
+        />
 
         {(status === "error" || status === "unsupported") && (
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex h-full items-center justify-center">
             <div className="mx-4 flex max-w-md flex-col items-center gap-4 rounded-3xl border border-border bg-card p-8 text-center shadow-xl">
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <FileText className="h-6 w-6" />
@@ -203,15 +248,13 @@ export function PdfViewerDialog({
                   You can still download the file.
                 </p>
               </div>
-              <div className="flex flex-wrap justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => void onDownload(doc)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-foreground transition-colors hover:bg-secondary"
-                >
-                  <Download className="h-3.5 w-3.5" /> Download
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => void onDownload(doc)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-foreground transition-colors hover:bg-secondary"
+              >
+                <Download className="h-3.5 w-3.5" /> Download
+              </button>
             </div>
           </div>
         )}
