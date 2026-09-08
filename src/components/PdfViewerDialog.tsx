@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   Bookmark,
@@ -36,9 +36,23 @@ export function PdfViewerDialog({
   const [status, setStatus] = useState<Status>("loading");
   const [pageCount, setPageCount] = useState(0);
   const [zoom, setZoom] = useState(100);
+  const [docSearch, setDocSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const isPdf = !!doc && /\.pdf$/i.test(doc.file_name);
+  const docPlaceholders = useMemo(
+    () =>
+      doc
+        ? getDocumentPlaceholders({
+            subject: doc.subject,
+            category: doc.category,
+            course: doc.course,
+            semester: doc.semester,
+          })
+        : [],
+    [doc],
+  );
 
   useEffect(() => {
     if (!doc) return;
