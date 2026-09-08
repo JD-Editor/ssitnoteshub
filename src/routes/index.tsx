@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { GraduationCap, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { GraduationCap } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { DocumentCard } from "@/components/DocumentCard";
 import { UploadDialog } from "@/components/UploadDialog";
-import { Input } from "@/components/ui/input";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import { GLOBAL_PLACEHOLDERS } from "@/lib/search-hints";
 import { COURSES, TYPE_FILTERS, matchesTypeFilter } from "@/lib/catalog";
 import { fetchDocuments } from "@/lib/documents";
 import { getSections, getSubjects } from "@/lib/syllabus";
