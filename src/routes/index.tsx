@@ -79,6 +79,16 @@ function Home() {
   const [typeFilter, setTypeFilter] = useState("");
   const qc = useQueryClient();
 
+  // A search started from an open document hands its query over to the home page.
+  useEffect(() => {
+    const pending = window.sessionStorage.getItem("ssit-pending-search");
+    if (pending) {
+      window.sessionStorage.removeItem("ssit-pending-search");
+      setSearch(pending);
+    }
+  }, []);
+
+
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: () => fetchDocuments(),
