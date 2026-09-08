@@ -133,34 +133,26 @@ function Home() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="hero-overlay absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <div className="flex max-w-2xl flex-col items-start gap-6">
-            <span className="chip-hero">Shree Swaminarayan Institute of Technology</span>
-            <div>
-              <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-primary-foreground drop-shadow-sm sm:text-6xl">
-                Welcome to SSIT Notes Hub
-              </h1>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-primary-foreground/90 sm:text-lg">
-                Everything you need in one place — semester-wise notes, previous year question
-                papers and practicals for BCA, MCA and IT. Anyone can upload and share.
-              </p>
-            </div>
-            <div className="flex w-full max-w-xl flex-wrap items-center gap-3">
-              <div className="relative min-w-0 flex-1">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search file, subject, semester or PYQs…"
-                  className="h-13 rounded-full border-0 bg-card pl-11 text-base shadow-lg"
-                />
-              </div>
-              <UploadDialog
-                size="default"
-                label="Upload File"
-                onUploaded={() => void qc.invalidateQueries({ queryKey: ["documents"] })}
-              />
-            </div>
+        <div className="relative mx-auto flex min-h-[62vh] max-w-6xl flex-col items-center justify-center px-4 py-16 text-center sm:min-h-[70vh] sm:py-24">
+          <h1 className="hero-title text-3xl font-black leading-[1.15] tracking-tight text-primary-foreground sm:text-5xl lg:text-6xl">
+            One Hub. Every Note. Endless Learning.
+          </h1>
+          <p className="hero-title mt-4 max-w-xl text-sm leading-relaxed text-primary-foreground/90 sm:text-lg">
+            Semester-wise notes, previous year question papers and practicals for BCA, MCA and IT.
+            Anyone can upload and share.
+          </p>
+          <div className="mt-8 flex w-full max-w-2xl flex-col items-center gap-3 sm:flex-row">
+            <GlobalSearch
+              value={search}
+              onChange={setSearch}
+              placeholders={GLOBAL_PLACEHOLDERS}
+              className="flex-1"
+            />
+            <UploadDialog
+              size="default"
+              label="Upload File"
+              onUploaded={() => void qc.invalidateQueries({ queryKey: ["documents"] })}
+            />
           </div>
         </div>
       </section>
