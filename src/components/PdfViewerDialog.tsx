@@ -234,6 +234,24 @@ export function PdfViewerDialog({
         </div>
       </header>
 
+      {/* Context-aware search for the subject of the open document */}
+      <div className="shrink-0 border-b border-border bg-card/70 px-4 py-3">
+        <div className="mx-auto max-w-3xl">
+          <GlobalSearch
+            value={docSearch}
+            onChange={setDocSearch}
+            placeholders={docPlaceholders}
+            onSubmit={(term) => {
+              if (!term.trim()) return;
+              window.sessionStorage.setItem("ssit-pending-search", term.trim());
+              onClose();
+              void navigate({ to: "/" });
+            }}
+          />
+        </div>
+      </div>
+
+
       {/* Document area */}
       <main className="flex-1 overflow-auto bg-secondary p-3 sm:p-6">
         {status === "loading" && (
