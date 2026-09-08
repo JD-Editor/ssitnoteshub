@@ -11,7 +11,10 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 import logo from "@/assets/ssit_logo.asset.json";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import { getDocumentPlaceholders } from "@/lib/search-hints";
 import { categoryLabel, formatDate, formatSize } from "@/lib/catalog";
 import { getFileUrl, type DocumentRow } from "@/lib/documents";
 
