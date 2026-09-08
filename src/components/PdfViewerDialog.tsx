@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   Bookmark,
@@ -11,7 +11,10 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 import logo from "@/assets/ssit_logo.asset.json";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import { getDocumentPlaceholders } from "@/lib/search-hints";
 import { categoryLabel, formatDate, formatSize } from "@/lib/catalog";
 import { getFileUrl, type DocumentRow } from "@/lib/documents";
 
@@ -33,9 +36,23 @@ export function PdfViewerDialog({
   const [status, setStatus] = useState<Status>("loading");
   const [pageCount, setPageCount] = useState(0);
   const [zoom, setZoom] = useState(100);
+  const [docSearch, setDocSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const isPdf = !!doc && /\.pdf$/i.test(doc.file_name);
+  const docPlaceholders = useMemo(
+    () =>
+      doc
+        ? getDocumentPlaceholders({
+            subject: doc.subject,
+            category: doc.category,
+            course: doc.course,
+            semester: doc.semester,
+          })
+        : [],
+    [doc],
+  );
 
   useEffect(() => {
     if (!doc) return;
@@ -216,6 +233,24 @@ export function PdfViewerDialog({
           </button>
         </div>
       </header>
+
+      {/* Context-aware search for the subject of the open document */}
+      <div className="shrink-0 border-b border-border bg-card/70 px-4 py-3">
+        <div className="mx-auto max-w-3xl">
+          <GlobalSearch
+            value={docSearch}
+            onChange={setDocSearch}
+            placeholders={docPlaceholders}
+            onSubmit={(term) => {
+              if (!term.trim()) return;
+              window.sessionStorage.setItem("ssit-pending-search", term.trim());
+              onClose();
+              void navigate({ to: "/" });
+            }}
+          />
+        </div>
+      </div>
+
 
       {/* Document area */}
       <main className="flex-1 overflow-auto bg-secondary p-3 sm:p-6">
