@@ -18,6 +18,7 @@ import { categoryLabel } from "@/lib/catalog";
 import { COURSES } from "@/lib/catalog";
 import { fetchDocuments, getFileUrl, type DocumentRow } from "@/lib/documents";
 import { SYLLABUS, getSections } from "@/lib/syllabus";
+import { useBookmarks } from "@/lib/bookmarks";
 
 type ChatMessage = {
   id: string;
@@ -113,6 +114,7 @@ export function ChatAssistant() {
   const [listening, setListening] = useState(false);
   const [viewDoc, setViewDoc] = useState<DocumentRow | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toggle, isBookmarked } = useBookmarks();
 
   const { data: docs = [] } = useQuery({
     queryKey: ["documents"],
@@ -384,9 +386,13 @@ export function ChatAssistant() {
       >
         {open ? <X className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
       </button>
-      {viewDoc ? (
-        <PdfViewerDialog doc={viewDoc} open onOpenChange={(v) => !v && setViewDoc(null)} />
-      ) : null}
+      <PdfViewerDialog
+        doc={viewDoc}
+        bookmarked={viewDoc ? isBookmarked(viewDoc.id) : false}
+        onToggleBookmark={toggle}
+        onDownload={download}
+        onClose={() => setViewDoc(null)}
+      />
     </>
   );
 }
