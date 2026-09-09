@@ -29,17 +29,31 @@ export function saveRecentSearch(term: string) {
   }
 }
 
+export type SearchFile = {
+  id: string;
+  title: string;
+  subject: string;
+  course: string;
+  semester: number;
+  category: string;
+  file_name: string;
+};
+
 export function GlobalSearch({
   value,
   onChange,
   placeholders,
   onSubmit,
+  files = [],
+  onPickFile,
   className = "",
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholders: string[];
   onSubmit?: (value: string) => void;
+  files?: SearchFile[];
+  onPickFile?: (file: SearchFile) => void;
   className?: string;
 }) {
   const [index, setIndex] = useState(0);
