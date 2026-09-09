@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CourseCourseIndexRouteImport } from './routes/course.$course.index'
 import { Route as CourseCourseSemesterIndexRouteImport } from './routes/course.$course.$semester.index'
 import { Route as CourseCourseSemesterSubjectRouteImport } from './routes/course.$course.$semester.$subject'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const BookmarksRoute = BookmarksRouteImport.update({
   id: '/bookmarks',
   path: '/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CourseCourseIndexRoute = CourseCourseIndexRouteImport.update({
@@ -46,6 +52,7 @@ const CourseCourseSemesterSubjectRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
+  '/api/chat': typeof ApiChatRoute
   '/course/$course/': typeof CourseCourseIndexRoute
   '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
   '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
@@ -53,6 +60,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
+  '/api/chat': typeof ApiChatRoute
   '/course/$course': typeof CourseCourseIndexRoute
   '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
   '/course/$course/$semester': typeof CourseCourseSemesterIndexRoute
@@ -61,6 +69,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bookmarks': typeof BookmarksRoute
+  '/api/chat': typeof ApiChatRoute
   '/course/$course/': typeof CourseCourseIndexRoute
   '/course/$course/$semester/$subject': typeof CourseCourseSemesterSubjectRoute
   '/course/$course/$semester/': typeof CourseCourseSemesterIndexRoute
@@ -70,6 +79,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bookmarks'
+    | '/api/chat'
     | '/course/$course/'
     | '/course/$course/$semester/$subject'
     | '/course/$course/$semester/'
@@ -77,6 +87,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bookmarks'
+    | '/api/chat'
     | '/course/$course'
     | '/course/$course/$semester/$subject'
     | '/course/$course/$semester'
@@ -84,6 +95,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/bookmarks'
+    | '/api/chat'
     | '/course/$course/'
     | '/course/$course/$semester/$subject'
     | '/course/$course/$semester/'
@@ -92,6 +104,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookmarksRoute: typeof BookmarksRoute
+  ApiChatRoute: typeof ApiChatRoute
   CourseCourseIndexRoute: typeof CourseCourseIndexRoute
   CourseCourseSemesterSubjectRoute: typeof CourseCourseSemesterSubjectRoute
   CourseCourseSemesterIndexRoute: typeof CourseCourseSemesterIndexRoute
@@ -111,6 +124,13 @@ declare module '@tanstack/react-router' {
       path: '/bookmarks'
       fullPath: '/bookmarks'
       preLoaderRoute: typeof BookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/course/$course/': {
@@ -140,6 +160,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookmarksRoute: BookmarksRoute,
+  ApiChatRoute: ApiChatRoute,
   CourseCourseIndexRoute: CourseCourseIndexRoute,
   CourseCourseSemesterSubjectRoute: CourseCourseSemesterSubjectRoute,
   CourseCourseSemesterIndexRoute: CourseCourseSemesterIndexRoute,
